@@ -1,0 +1,9 @@
+---
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+
+deb_architecture:
+  aarch64: arm64
+  x86_64: amd64

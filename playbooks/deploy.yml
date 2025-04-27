@@ -1,0 +1,6 @@
+---
+- name: Deploy WordPress
+  hosts: wordpress_server
+  become: true
+  roles:
+    - inception

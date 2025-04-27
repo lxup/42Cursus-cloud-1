@@ -1,0 +1,9 @@
+---
+- name: Prune WordPress
+  hosts: wordpress_server
+  become: true
+  vars:
+    inception_stop: true
+    inception_prune: true
+  roles:
+    - inception

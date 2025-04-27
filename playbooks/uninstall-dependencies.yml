@@ -1,0 +1,10 @@
+---
+- name: Install dependencies
+  hosts: wordpress_server
+  become: true
+  vars:
+    packages_uninstall: true
+    docker_uninstall: true
+  roles:
+    - config
+    - docker

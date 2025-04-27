@@ -1,0 +1,9 @@
+---
+- name: "{{ 'Remove' if packages_uninstall else 'Install' }} dependencies"
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: "{{ 'absent' if packages_uninstall else 'present' }}"
+    force: yes
+  loop: "{{ packages }}"
+  when: item != 'ca-certificates' or not packages_uninstall | default(false) # ca-certificates is required for HTTPS
+  ignore_errors: "{{ packages_uninstall }}" # Ignore errors if uninstalling packages

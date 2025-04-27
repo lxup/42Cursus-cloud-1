@@ -1,0 +1,3 @@
+---
+inception_src_path: "{{ ansible_env.HOME }}/src"
+inception_data_path: "{{ ansible_env.HOME }}/data"

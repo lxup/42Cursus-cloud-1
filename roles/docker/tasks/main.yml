@@ -1,0 +1,36 @@
+---
+- name: Remove old docker versions
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - docker.io
+    - docker-doc
+    - docker-compose
+    - docker-engine
+    - containerd
+    - runc
+
+- name: "{{ 'Remove' if docker_uninstall else 'Add' }} Docker GPG key"
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+    state: "{{ 'absent' if docker_uninstall else 'present' }}"
+  
+- name: "{{ 'Remove' if docker_uninstall else 'Add' }} Docker repository"
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ deb_architecture[ansible_architecture] | default(ansible_architecture) }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_lsb.codename }} stable"
+    state: "{{ 'absent' if docker_uninstall else 'present' }}"
+    update_cache: yes
+
+- name: "{{ 'Remove' if docker_uninstall else 'Install' }} Docker packages"
+  ansible.builtin.apt:
+    name: "{{ docker_packages }}"
+    state: "{{ 'absent' if docker_uninstall else 'latest' }}"
+    update_cache: yes
+
+- name: Start Docker service
+  ansible.builtin.service:
+    name: docker
+    state: "{{ 'stopped' if docker_uninstall else 'started' }}"
+    enabled: yes
+  when: not docker_uninstall | default(false)

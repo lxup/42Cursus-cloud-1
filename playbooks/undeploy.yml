@@ -1,0 +1,8 @@
+---
+- name: Undeploy WordPress
+  hosts: wordpress_server
+  become: true
+  vars:
+    inception_stop: true
+  roles:
+    - inception

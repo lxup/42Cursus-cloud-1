@@ -1,0 +1,2 @@
+[wordpress_server]
+5.75.142.209 ansible_user=root ansible_ssh_private_key_file=~/.ssh/wordpress

@@ -1,0 +1,45 @@
+---
+# Inception configuration
+- name: Copy Inception configuration file
+  ansible.builtin.copy:
+    src: inception
+    dest: "{{ inception_src_path }}"
+    mode: "0744"
+  when: not inception_stop
+
+# Data folder
+- name: Create Inception data folder
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ inception_data_path }}"
+    - "{{ inception_data_path }}/mysql"
+    - "{{ inception_data_path }}/wordpress"
+  when: not inception_stop
+  
+# Start/Stop Inception
+- name: "{{ 'Stop' if inception_stop else 'Start' }} Inception"
+  community.docker.docker_compose_v2:
+    project_src: "{{ inception_src_path }}/inception"
+    state: "{{ 'absent' if inception_stop else 'present' }}"
+    build: "always"
+    remove_orphans: "{{ 'true' if inception_prune else 'false' }}"
+    remove_volumes: "{{ 'true' if inception_prune else 'false' }}"
+    remove_images: "{{ 'all' if inception_prune else 'local' }}"
+
+# Prune
+- name: Delete Inception configuration file
+  ansible.builtin.file:
+    path: "{{ inception_src_path }}/inception"
+    state: absent
+  when: inception_prune
+- name: Delete Inception data folder
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ inception_data_path }}"
+    - "{{ inception_data_path }}/mysql"
+    - "{{ inception_data_path }}/wordpress"
+  when: inception_prune
