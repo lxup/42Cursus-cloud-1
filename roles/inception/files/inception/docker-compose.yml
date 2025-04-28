@@ -8,6 +8,11 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     restart: always
   
   wordpress:
@@ -16,7 +21,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     volumes:
       - wordpress:${WORDPRESS_PATH}
     networks:
@@ -25,15 +31,17 @@ services:
   
   phpmyadmin:
     container_name: phpmyadmin
-    image: phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
     environment:
       PMA_HOST: mariadb
       PMA_ABSOLUTE_URI: https://${DOMAIN_NAME}/phpmyadmin/
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     networks:
       - network
-    restart: on-failure
+    restart: always # on-failure causing issues with phpmyadmin when server is rebooted
 
   nginx:
     container_name: nginx
@@ -42,7 +50,9 @@ services:
       - .env
     depends_on:
       - wordpress
+      - phpmyadmin
     ports:
+      - 80:80
       - 443:443
     volumes:
       - wordpress:${WORDPRESS_PATH}
