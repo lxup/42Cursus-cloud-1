@@ -14,12 +14,20 @@
     state: directory
   loop:
     - "{{ inception_data_path }}"
-    - "{{ inception_data_path }}/mysql"
+    - "{{ inception_data_path }}/mariadb"
     - "{{ inception_data_path }}/wordpress"
   when: not inception_stop
   
-# Start/Stop Inception
-- name: "{{ 'Stop' if inception_stop else 'Start' }} Inception"
+# --------------------------- Start/Stop Inception --------------------------- #
+
+# with docker
+- name: "{{ 'Stop' if inception_stop else 'Start' }} Inception with docker"
+  ansible.builtin.include_tasks: "{{ item }}"
+  loop: "{{ ['containers.yml', 'networks.yml', 'volumes.yml', 'images.yml'] if inception_stop else ['images.yml', 'volumes.yml', 'networks.yml', 'containers.yml'] }}" # change order when starting
+  when: not inception_with_compose
+
+# with docker-compose
+- name: "{{ 'Stop' if inception_stop else 'Start' }} Inception with docker-compose"
   community.docker.docker_compose_v2:
     project_src: "{{ inception_src_path }}/inception"
     state: "{{ 'absent' if inception_stop else 'present' }}"
@@ -27,6 +35,8 @@
     remove_orphans: "{{ 'true' if inception_prune else 'false' }}"
     remove_volumes: "{{ 'true' if inception_prune else 'false' }}"
     remove_images: "{{ 'all' if inception_prune else 'local' }}"
+  when: inception_with_compose
+# ---------------------------------------------------------------------------- #
 
 # Prune
 - name: Delete Inception configuration file
@@ -40,6 +50,6 @@
     state: absent
   loop:
     - "{{ inception_data_path }}"
-    - "{{ inception_data_path }}/mysql"
+    - "{{ inception_data_path }}/mariadb"
     - "{{ inception_data_path }}/wordpress"
   when: inception_prune

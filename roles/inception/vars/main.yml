@@ -1,3 +1,44 @@
 ---
 inception_src_path: "{{ ansible_env.HOME }}/src"
 inception_data_path: "{{ ansible_env.HOME }}/data"
+inception_containers:
+  - name: mariadb
+    image:
+      name: inception_mariadb
+      build_folder: mariadb
+    volumes:
+      - name: mariadb
+        driver: local
+        mount_path: /var/lib/mysql
+    restart: always
+  - name: wordpress
+    image:
+      name: inception_wordpress
+      build_folder: wordpress
+    volumes:
+      - name: wordpress
+        driver: local
+        mount_path: /var/www/wordpress
+    restart: on-failure
+  - name: phpmyadmin
+    image:
+      name: phpmyadmin/phpmyadmin:latest
+    restart: always
+  - name: nginx
+    image:
+      name: inception_nginx
+      build_folder: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - name: wordpress
+        driver: local
+        mount_path: /var/www/wordpress
+    restart: on-failure
+inception_networks:
+  - name: inception
+    driver: bridge
+deb_architecture:
+  aarch64: arm64
+  x86_64: amd64

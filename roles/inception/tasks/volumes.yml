@@ -1,0 +1,13 @@
+- name: "{{ 'Remove' if inception_prune else 'Create' }} volumes"
+  community.docker.docker_volume:
+    name: "{{ volume.name }}"
+    state: "{{ 'absent' if inception_prune else 'present' }}"
+    driver: "{{ volume.driver | default('local') }}"
+    driver_options:
+      type: none
+      device: "{{ inception_data_path }}/{{ volume.name }}"
+      o: bind
+  loop: "{{ inception_containers | selectattr('volumes', 'defined') | map(attribute='volumes') | flatten }}"
+  loop_control:
+    loop_var: volume
+  when: volume.name is defined

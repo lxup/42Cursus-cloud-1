@@ -1,0 +1,8 @@
+---
+- name: Deploy WordPress with Docker Compose
+  hosts: wordpress_server
+  become: true
+  vars:
+    inception_with_compose: true
+  roles:
+    - inception

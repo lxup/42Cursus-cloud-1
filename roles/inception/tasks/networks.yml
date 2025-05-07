@@ -1,0 +1,10 @@
+---
+- name: "{{ 'Remove' if inception_prune else 'Create' }} Docker network"
+  community.docker.docker_network:
+    state: "{{ 'absent' if inception_prune else 'present' }}"
+    name: "{{ network_item.name }}"
+    driver: "{{ network_item.driver | default('bridge') }}"
+  loop: "{{ inception_networks }}"
+  loop_control:
+    loop_var: network_item
+  when: network_item.name is defined

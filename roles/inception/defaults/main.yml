@@ -1,3 +1,4 @@
 ---
 inception_stop: false
 inception_prune: false
+inception_with_compose: false

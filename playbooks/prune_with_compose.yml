@@ -1,0 +1,10 @@
+---
+- name: Prune WordPress with Docker Compose
+  hosts: wordpress_server
+  become: true
+  vars:
+    inception_stop: true
+    inception_prune: true
+    inception_with_compose: true
+  roles:
+    - inception

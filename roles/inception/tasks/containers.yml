@@ -1,0 +1,20 @@
+---
+- name: "{{ 'Stop' if inception_stop else 'Start' }} Inception containers"
+  community.docker.docker_container:
+    name: "{{ container_item.name }}"
+    state: "{{ 'absent' if inception_stop else 'started' }}"
+    image: "{{ container_item.image.name }}"
+    env_file: "{{ inception_src_path }}/inception/.env"
+    restart_policy: "{{ container_item.restart | default('on-failure') }}"
+    volumes: >
+      {{ container_item.volumes | default([]) | map(attribute='name') 
+        | zip(container_item.volumes | default([]) | map(attribute='mount_path')) 
+        | map('join', ':') | list }}
+    networks:
+      - name: "{{ inception_networks[0].name }}"
+        aliases:
+          - "{{ container_item.name }}"
+    ports: "{{ container_item.ports | default(omit) }}"
+  loop: "{{ inception_containers }}"
+  loop_control:
+    loop_var: container_item
