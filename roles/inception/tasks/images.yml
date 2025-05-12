@@ -7,7 +7,7 @@
     build: "{{ {'path': inception_src_path + '/inception/requirements/' + image_item.image.build_folder, 'pull': true} if image_item.image.build_folder is defined else omit }}"
     pull:
       platform: "linux/{{ deb_architecture[ansible_architecture] | default(ansible_architecture) }}"
-  loop: "{{ inception_containers }}"
+  loop: "{{ inception_containers | rejectattr('name', 'in', bypass_containers | default([])) | list }}"
   loop_control:
     loop_var: image_item
   when: image_item.image.name is defined

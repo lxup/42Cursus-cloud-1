@@ -7,7 +7,14 @@
       type: none
       device: "{{ inception_data_path }}/{{ volume.name }}"
       o: bind
-  loop: "{{ inception_containers | selectattr('volumes', 'defined') | map(attribute='volumes') | flatten }}"
+  loop: >-
+    {{
+      inception_containers
+      | rejectattr('name', 'in', bypass_containers | default([]))
+      | selectattr('volumes', 'defined')
+      | map(attribute='volumes')
+      | flatten
+    }}
   loop_control:
     loop_var: volume
   when: volume.name is defined

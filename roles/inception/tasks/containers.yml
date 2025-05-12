@@ -15,6 +15,6 @@
         aliases:
           - "{{ container_item.name }}"
     ports: "{{ container_item.ports | default(omit) }}"
-  loop: "{{ inception_containers }}"
+  loop: "{{ inception_containers | rejectattr('name', 'in', bypass_containers | default([])) | list }}"
   loop_control:
     loop_var: container_item

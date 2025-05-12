@@ -2,3 +2,4 @@
 inception_stop: false
 inception_prune: false
 inception_with_compose: false
+# bypass_containers: [] # List of containers to bypass
